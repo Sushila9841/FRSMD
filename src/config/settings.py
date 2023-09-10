@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'predict',
     'userprofile',
     'food',
+    'blogs',
 ]
 
 MIDDLEWARE = [
