@@ -20,7 +20,7 @@ class Contact(View):
 class Blogs(View):
     def get(self, request, *args, **kwargs):
 
-        return render(request, 'frontend/blog.html')
+        return render(request, 'frontend/blogs.html')
     
 class Blog(View):
     def get(self, request, *args, **kwargs):
