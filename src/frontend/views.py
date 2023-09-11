@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View
 from predict.forms import CameraForm
+from django.http import HttpResponse
 
 
 class HomePage(View):
@@ -30,10 +31,14 @@ class Blog(View):
 
 class Camera(View):
     def get(self, request, *args, **kwargs):
-        form = CameraForm()
-        context = {
-            'form': form
-        }
-
-        return render(request, 'frontend/camera.html', context)
     
+        return render(request, 'frontend/camera.html')
+    
+    def post(self, request, *args, **kwargs):
+        # get image file image object from request.FILES
+        captured_image_data = request.FILES.get('image_file')
+
+        print(captured_image_data)
+
+        return HttpResponse(captured_image_data)
+        
