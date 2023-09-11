@@ -1,0 +1,107 @@
+{% extends 'frontend/base.html' %}
+{% load tailwind_filters %}
+
+{% block content %}
+
+<div class="container-fluid mx-auto w-fit">
+    <div class="row">
+     <div class="col-md-8">  
+        <div id="accordion" role="tablist">
+
+            <form method="POST" action="/usersave/" enctype="multipart/form-data">
+                {% csrf_token %}
+
+               <div class="card-body">
+                 <div class="row">
+                   <div class="col-md-4 ml-auto mr-auto">
+                      <div class="form-group">                                
+                         <video id="video" autoplay ></video>                               
+                         <canvas id="canvas"></canvas>                                
+                   </div>
+                <button id="startbutton1" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-[20px]">Take Photo</button>
+                          <script>
+                            (function() {
+
+var width = 320;    
+var height = 0;    
+var streaming = false;  
+var video = null;
+var canvas = null;
+var photo = null;
+var startbutton1 = null;
+
+function startup() {
+  video = document.getElementById('video');
+  canvas = document.getElementById('canvas');
+  photo = document.getElementById('photo');
+  startbutton1 = document.getElementById('startbutton1');
+
+  navigator.mediaDevices.getUserMedia({video: true, audio: false})
+  .then(function(stream) {
+    video.srcObject = stream;
+    video.play();
+  })
+  .catch(function(err) {
+    console.log("An error occurred: " + err);
+  });
+
+  video.addEventListener('canplay', function(ev){
+    if (!streaming) {
+      height = video.videoHeight / (video.videoWidth/width);
+
+
+      if (isNaN(height)) {
+        height = width / (4/3);
+      }
+
+      video.setAttribute('width', width);
+      video.setAttribute('height', height);
+      canvas.setAttribute('width', width);
+      canvas.setAttribute('height', height);
+      streaming = true;
+    }
+  }, false);
+
+  startbutton1.addEventListener('click', function(ev){
+    takepicture();
+    ev.preventDefault();
+  }, false);
+
+  clearphoto();
+}
+
+function clearphoto() {
+  var context = canvas.getContext('2d');
+  context.fillStyle = "#AAA";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  var data = canvas.toDataURL('image/png');
+  photo.setAttribute('src', data);
+}
+
+function takepicture() {
+  var context = canvas.getContext('2d');
+  if (width && height) {
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(video, 0, 0, width, height);
+
+    var data = canvas.toDataURL('image/png');
+    photo.setAttribute('src', data);
+  } else {
+    clearphoto();
+  }
+}
+window.addEventListener('load', startup, false);
+})();
+                          </script>
+                        </div>
+
+                    <div class="img  pull-center" >                                            
+                    <img id ="photo" name="photo" alt="The screen capture will appear in this box.">                   
+          </form>
+      </div>                
+    </div>  
+ </div>
+
+{% endblock content %}

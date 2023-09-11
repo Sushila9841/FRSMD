@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import View
+from predict.forms import CameraForm
 
 
 class HomePage(View):
@@ -26,4 +27,13 @@ class Blog(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'frontend/blog')
     
+
+class Camera(View):
+    def get(self, request, *args, **kwargs):
+        form = CameraForm()
+        context = {
+            'form': form
+        }
+
+        return render(request, 'frontend/camera.html', context)
     
