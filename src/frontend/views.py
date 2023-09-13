@@ -13,6 +13,8 @@ from django.contrib.auth.models import User
 from userprofile.models import UserProfile
 from predict.moods import Moods
 from food.models import Food
+from userprofile.models import MoodHistory
+from frontend.forms import FoodVsMoodForm
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
@@ -126,12 +128,32 @@ class Camera(LoginRequired, View):
         else:
             foods = Food.objects.filter(food_category=Moods.neutral)
 
-        print("Detected moods:", moods)
-
+        mood_history = MoodHistory.objects.create(user=request.user, mood=moods[0])
+        mood_history.save()
         context = {
             'foods': foods,
             'moods': moods
         }
 
         return render(request, 'frontend/food_suggest.html', context)
+    
+
+class QuestionsView(LoginRequired, View):
+    def get(self, request, *args, **kwargs):
+        form = FoodVsMoodForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'frontend/questions.html', context)
+    
+    def post(self, request, *args, **kwargs):
+        form = FoodVsMoodForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('Form submitted successfully')
+        else:
+            context = {
+                'form': form
+            }
+            return render(request, 'frontend/questions.html', context)
         

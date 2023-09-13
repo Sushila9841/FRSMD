@@ -13,6 +13,7 @@ urlpatterns = [
     path('blogs', BlogsView.as_view(), name='blogs'),
     path('blog/<int:pk>', BlogView.as_view(), name='blog'),
     path('camera', Camera.as_view(), name='camera'),
+    path('questions', QuestionsView.as_view(), name='questions'),
 
 ]
 if settings.DEBUG:
