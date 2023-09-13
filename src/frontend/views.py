@@ -11,6 +11,8 @@ from django.shortcuts import redirect
 from userprofile.mixin import LoginRequired
 from django.contrib.auth.models import User
 from userprofile.models import UserProfile
+from predict.moods import Moods
+from food.models import Food
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
@@ -109,7 +111,27 @@ class Camera(LoginRequired, View):
             # Perform emotion detection on the image
             moods = detect_emotions(image)
 
-        print("Detected emotions:", moods)
+        if 'Happy' in moods:
+            foods = Food.objects.filter(food_category=Moods.happy)
+        elif 'Sad' in moods:
+            foods = Food.objects.filter(food_category=Moods.sad)
+        elif 'Angry' in moods:
+            foods = Food.objects.filter(food_category=Moods.angry)
+        elif 'Surprise' in moods:
+            foods = Food.objects.filter(food_category=Moods.surprise)
+        elif 'Fear' in moods:
+            foods = Food.objects.filter(food_category=Moods.fear)
+        elif 'Disgust' in moods:
+            foods = Food.objects.filter(food_category=Moods.disgust)
+        else:
+            foods = Food.objects.filter(food_category=Moods.neutral)
 
-        return HttpResponse('<h1>Detected emotions:{}</h1>'.format(moods))
+        print("Detected moods:", moods)
+
+        context = {
+            'foods': foods,
+            'moods': moods
+        }
+
+        return render(request, 'frontend/food_suggest.html', context)
         
