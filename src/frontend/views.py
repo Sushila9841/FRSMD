@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from predict.mood_detect import detect_emotions
 import numpy as np
 import cv2
+from blogs.models import Blog
 
 class HomePage(View):
     def get(self, request, *args, **kwargs):
@@ -21,12 +22,16 @@ class Contact(View):
 
         return render(request, 'frontend/contact.html')
     
-class Blogs(View):
+class BlogsView(View):
     def get(self, request, *args, **kwargs):
+        blogs = Blog.objects.all()
+        context = {
+            'blogs': blogs
+        }
 
-        return render(request, 'frontend/blogs.html')
+        return render(request, 'frontend/blogs.html', context)
     
-class Blog(View):
+class BlogView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'frontend/blog')
     
