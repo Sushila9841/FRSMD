@@ -14,7 +14,7 @@ class FoodCategory(models.Model):
 class Food(models.Model):
     food_category = models.ForeignKey(FoodCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to='food_images')
+    image = models.ImageField(upload_to='media/food_images')
     url = models.CharField(max_length=200)
 
 

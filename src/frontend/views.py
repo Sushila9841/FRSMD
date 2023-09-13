@@ -6,6 +6,53 @@ from predict.mood_detect import detect_emotions
 import numpy as np
 import cv2
 from blogs.models import Blog
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect
+from userprofile.mixin import LoginRequired
+from django.contrib.auth.models import User
+from userprofile.models import UserProfile
+
+class LoginView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request,  'frontend/login.html')
+
+    def post(self, request, *args, **kwargs):
+        username = request.POST["username"]
+        password = request.POST["password"]
+        usr = authenticate(username=username, password=password)
+        if usr is not None:
+            login(self.request, usr)
+            return redirect('/camera')
+        else:
+            context = {
+                "error": "incorrect credentials"
+            }
+            return render(request, 'frontend/login.html', context)
+        
+class LogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('login')
+        
+class SignUpView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'frontend/signup.html')
+    
+    def post(self, request, *args, **kwargs):
+        username = request.POST["username"]
+        password = request.POST["password"]
+        age = int(request.POST["age"])
+        phone = request.POST["phone"]
+        address = request.POST["address"]
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+        userprofile = UserProfile.objects.create(user=user, age=age, phone_number=phone, address=address)
+        userprofile.save()  
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(self.request, user)
+            return redirect('/camera')
+        return render(request, 'frontend/signup.html')
 
 class HomePage(View):
     def get(self, request, *args, **kwargs):
@@ -33,10 +80,15 @@ class BlogsView(View):
     
 class BlogView(View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'frontend/blog')
+        pk = kwargs.get('pk')
+        blog = Blog.objects.get(pk=pk)
+        context = {
+            'blog': blog
+        }   
+        return render(request, 'frontend/blog_single.html', context)
     
 
-class Camera(View):
+class Camera(LoginRequired, View):
     def get(self, request, *args, **kwargs):
     
         return render(request, 'frontend/camera.html')
