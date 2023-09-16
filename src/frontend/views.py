@@ -3,6 +3,7 @@ from django.views.generic import View
 from predict.forms import CameraForm
 from django.http import HttpResponse
 from predict.mood_detect import detect_emotions
+from predict.food_detect import detect_food
 import numpy as np
 import cv2
 from blogs.models import Blog
@@ -112,6 +113,9 @@ class Camera(LoginRequired, View):
 
             # Perform emotion detection on the image
             moods = detect_emotions(image)
+            mood = moods[0]
+            foods = detect_food('happy', 11, 'm')
+            print("===================>{}".format(foods))
 
         if 'Happy' in moods:
             foods = Food.objects.filter(food_category=Moods.happy)
