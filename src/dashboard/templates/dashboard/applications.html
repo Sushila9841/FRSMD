@@ -1,0 +1,50 @@
+{% extends "dashboard/base.html" %}
+
+{% block container %}
+<div class="">
+    <div class="flex items-center h-10 intro-y">
+        <h2 class="mr-5 text-lg font-medium truncate pb-8">D01 {{title}}</h2>
+    </div>
+    <table id="myTable" class="display">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>PAN</th>
+                <th>Year</th>
+                <th>Turnover</th>
+                <th>Profit</th>
+                <th>Tax Effective</th>
+                <th>Tax interest</th>
+                <th>Fee</th>
+                <th>Total</th>
+                <th>Payment Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for application in applications %}
+            <tr>
+                <td>{{application.id}}</td>
+                <td><a href="/dashboard/firmview/{{application.firm_id}}" style="color: blueviolet;">{{application.firm_pan}}</a></td>
+                <td>{{application.fiscal_year}}</td>
+                <td>{{application.yearly_turnover}}</td>
+                <td>{{application.profit}}</td>
+                <td>{{application.tax_effective}}</td>
+                <td>{{application.interest}}</td>
+                <td>{{application.d01_fee}}</td>
+                <td>{{application.payable_amount}}</td>
+                <td>{{application.is_paid}}</td>
+                <td><a href="/dashboard/application/{{application.id}}"><i class="fa-solid fa-pen-to-square" style="color:blue;"></i></td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable();
+    });
+</script>
+{% endblock %}

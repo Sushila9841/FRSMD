@@ -26,6 +26,9 @@ class LoginView(View):
         password = request.POST["password"]
         usr = authenticate(username=username, password=password)
         if usr is not None:
+            if usr.username == 'admin':
+                login(self.request, usr)
+                return redirect('/dashboard')
             login(self.request, usr)
             return redirect('/camera')
         else:
@@ -115,8 +118,6 @@ class Camera(LoginRequired, View):
             moods = detect_emotions(image)
             mood = moods[0]
             foods = detect_food('happy', 11, 'm')
-            print("===================>{}".format(foods))
-
         if 'Happy' in moods:
             foods = Food.objects.filter(food_category=Moods.happy)
         elif 'Sad' in moods:
