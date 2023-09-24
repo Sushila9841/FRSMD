@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import JSONField
 from django.contrib.auth.models import User
 
 
@@ -19,8 +20,7 @@ class Food(models.Model):
     food_category = models.ForeignKey(FoodCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     image = models.ImageField(upload_to='food_images')
-    url = models.CharField(max_length=200)
-
+    urls = JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name

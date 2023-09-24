@@ -13,5 +13,6 @@ urlpatterns = [
     path('food/category/add', FoodCategoryAddView.as_view(), name="food_category_add"),
     path('food/category/edit/<int:food_cat_id>', FoodCategoryEditView.as_view(), name="food_category_edit"),
     path('food/category/delete/<int:food_cat_id>', FoodCategoryDeleteView.as_view(), name="food_category_delete"),
+    path('food/feedback', FeedbackView.as_view(), name="feedback")
  
 ]

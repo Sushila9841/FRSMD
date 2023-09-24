@@ -4,6 +4,7 @@ from predict.forms import CameraForm
 from django.http import HttpResponse
 from predict.mood_detect import detect_emotions
 from predict.food_detect import detect_food
+from random import randint
 import numpy as np
 import cv2
 from blogs.models import Blog
@@ -15,7 +16,10 @@ from userprofile.models import UserProfile
 from predict.moods import Moods
 from food.models import Food
 from userprofile.models import MoodHistory
-from frontend.forms import FoodVsMoodForm
+from frontend.forms import FoodVsMoodForm , feedbackForm
+from .models import feedback
+from django.contrib import messages
+
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
@@ -30,7 +34,11 @@ class LoginView(View):
                 login(self.request, usr)
                 return redirect('/dashboard')
             login(self.request, usr)
-            return redirect('/camera')
+            user_profile = UserProfile.objects.get(user=usr)
+            if user_profile.has_filled_survey:
+                return redirect('/camera')
+            else:
+                return redirect('/questions')
         else:
             context = {
                 "error": "incorrect credentials"
@@ -52,18 +60,32 @@ class SignUpView(View):
         age = int(request.POST["age"])
         phone = request.POST["phone"]
         address = request.POST["address"]
+        gender = request.POST["gender"]
+        if User.objects.filter(username=username).exists():
+            context={
+                "error":"Username already taken"
+            }
+            return render(request, 'frontend/signup.html', context)
         user = User.objects.create_user(username=username, password=password)
         user.save()
-        userprofile = UserProfile.objects.create(user=user, age=age, phone_number=phone, address=address)
+        userprofile = UserProfile.objects.create(user=user, age=age, phone_number=phone, address=address, gender=gender)
         userprofile.save()  
         user = authenticate(username=username, password=password)
         if user is not None:
             login(self.request, user)
-            return redirect('/camera')
+            return redirect('/questions')
         return render(request, 'frontend/signup.html')
 
+    
+
 class HomePage(View):
+
     def get(self, request, *args, **kwargs):
+        star_positions = [{'top': randint(0, 100), 'left': randint(0, 100)} for _ in range(30)]
+        context = {
+            'star_positions': star_positions,
+            # ... you can add any other context variables here if needed
+        }
          
         return render(request, 'frontend/index.html')
     
@@ -73,9 +95,24 @@ class About(View):
         return render(request, 'frontend/about.html')
     
 class Contact(View):
+    def get (self, request, *args, **kwargs):
+        form = feedbackForm()
+        return render(request, "frontend/contact.html", {'form': form})
+    
+
+    def post(self, request, *args, **kwargs):
+        form = feedbackForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Sucessfully received your Feedback")
+            return redirect("contact")
+        else:
+             return render(request, 'frontend/contact.html', {'form': form})
+
+class Footer(View):
     def get(self, request, *args, **kwargs):
 
-        return render(request, 'frontend/contact.html')
+        return render(request, 'frontend/footer.html')
     
 class BlogsView(View):
     def get(self, request, *args, **kwargs):
@@ -124,12 +161,12 @@ class Camera(LoginRequired, View):
             foods = Food.objects.filter(food_category=Moods.sad)
         elif 'Angry' in moods:
             foods = Food.objects.filter(food_category=Moods.angry)
-        elif 'Surprise' in moods:
-            foods = Food.objects.filter(food_category=Moods.surprise)
-        elif 'Fear' in moods:
-            foods = Food.objects.filter(food_category=Moods.fear)
-        elif 'Disgust' in moods:
-            foods = Food.objects.filter(food_category=Moods.disgust)
+        elif 'Surprised' in moods:
+            foods = Food.objects.filter(food_category=Moods.surprised)
+        elif 'Fearful' in moods:
+            foods = Food.objects.filter(food_category=Moods.fearful)
+        elif 'Disgusted' in moods:
+            foods = Food.objects.filter(food_category=Moods.disgusted)
         else:
             foods = Food.objects.filter(food_category=Moods.neutral)
 
@@ -142,7 +179,6 @@ class Camera(LoginRequired, View):
 
         return render(request, 'frontend/food_suggest.html', context)
     
-
 class QuestionsView(LoginRequired, View):
     def get(self, request, *args, **kwargs):
         form = FoodVsMoodForm()
@@ -153,12 +189,8 @@ class QuestionsView(LoginRequired, View):
     
     def post(self, request, *args, **kwargs):
         form = FoodVsMoodForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponse('Form submitted successfully')
-        else:
-            context = {
-                'form': form
-            }
-            return render(request, 'frontend/questions.html', context)
-        
+        user_profile = UserProfile.objects.get(user=request.user)
+        user_profile.has_filled_survey = True
+        user_profile.save()
+        return redirect('/camera')
+   

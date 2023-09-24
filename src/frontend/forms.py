@@ -1,6 +1,15 @@
 from django import forms
+from food.models import FoodCategory
+from .models import feedback
 
-CHOICES=[('happy', 'happy'), ('sad', 'sad'), ('angry', 'angry'), ('neutral', 'neutral'), ('surprise', 'surprise'), ('fear', 'fear'), ('disgust', 'disgust')]
+# add food category in choices 
+food_cat = FoodCategory.objects.all()
+# add this food FoodCategory to choices 
+CHOICES = []
+for cat in food_cat:
+    CHOICES.append((cat.id, cat.name))
+    
+
 class FoodVsMoodForm(forms.Form):
     #char fields with choices
     q1 = forms.CharField(label='When you are feeling happy, what type of food do you crave the most?', widget=forms.RadioSelect(choices=CHOICES))
@@ -31,4 +40,9 @@ class FoodVsMoodForm(forms.Form):
             'q6': forms.RadioSelect(choices=CHOICES),
             'q7': forms.RadioSelect(choices=CHOICES),
         }
-
+    
+class feedbackForm(forms.ModelForm):
+        class Meta:
+            model= feedback
+            fields=['email', 'message']
+            

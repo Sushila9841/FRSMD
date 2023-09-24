@@ -46,7 +46,10 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_tailwind',
     'ckeditor',
-    'dashboard'
+    'dashboard',
+    'django.forms',
+    'widget_tweaks',
+    'chatbot'
 ]
 
 MIDDLEWARE = [

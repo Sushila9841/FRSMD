@@ -6,7 +6,7 @@ from userprofile.models import UserProfile as User
 from food.models import Food, FoodCategory
 from .forms import FoodForm, FoodCategoryForm
 from django.shortcuts import redirect
-
+from frontend.models import feedback
 
 
 
@@ -137,4 +137,14 @@ class FoodCategoryDeleteView(LoginRequired, View):
         food_cat = FoodCategory.objects.get(id=food_cat_id)
         food_cat.delete()
         return redirect('food_category_list')
+
+class FeedbackView(LoginRequired, View):
+    def get(self, request, *args, **kwargs):
+        feedbacks = feedback.objects.all().order_by('-created_at')
+        context={
+            "feedbacks": feedbacks
+        }
+
+
+        return render(request, 'dashboard/feedback.html', context)
     
